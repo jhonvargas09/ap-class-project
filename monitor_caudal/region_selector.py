@@ -33,18 +33,23 @@ class RegionSelector:
         self.canvas.bind("<ButtonRelease-1>", self._on_release)
 
     def _on_press(self, event):
-        self.start_x, self.start_y = event.x, event.y
+        # Coordenadas absolutas de pantalla: el canvas no empieza en (0,0) del
+        # Toplevel (la etiqueta de arriba lo desplaza), así que event.x/event.y
+        # (locales al canvas) no sirven para calcular la región de captura.
+        self.start_x, self.start_y = event.x_root, event.y_root
         self.rect_id = self.canvas.create_rectangle(
-            self.start_x, self.start_y, self.start_x, self.start_y,
+            event.x, event.y, event.x, event.y,
             outline="red", width=2,
         )
 
     def _on_drag(self, event):
-        self.canvas.coords(self.rect_id, self.start_x, self.start_y, event.x, event.y)
+        start_x_local = self.start_x - self.canvas.winfo_rootx()
+        start_y_local = self.start_y - self.canvas.winfo_rooty()
+        self.canvas.coords(self.rect_id, start_x_local, start_y_local, event.x, event.y)
 
     def _on_release(self, event):
         x0, y0 = self.start_x, self.start_y
-        x1, y1 = event.x, event.y
+        x1, y1 = event.x_root, event.y_root
         left, right = sorted((x0, x1))
         top, bottom = sorted((y0, y1))
         width, height = right - left, bottom - top
