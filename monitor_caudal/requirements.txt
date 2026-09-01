@@ -1,5 +1,0 @@
-mss
-pillow
-pytesseract
-matplotlib
-openpyxl
